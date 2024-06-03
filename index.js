@@ -1,6 +1,7 @@
 require("dotenv").config();
 const conn = require("./db/conn");
 const Usuario = require("./models/Usuario");
+const Jogo = require("./models/Jogo");
 
 const express = require("express");
 const app = express();
@@ -25,6 +26,21 @@ app.post("/usuarios/novo", async (req, res) => {
 
     const usuario = await Usuario.create(dadosUsuario);
     res.send("Usuário inserido sobre o id " + usuario.id);
+});
+
+app.get("/jogos/novo", (req, res) => {
+    res.sendFile(`${__dirname}/views/formJogo.html`);
+});
+
+app.post("/jogos/novo", async (req, res) => {
+    const dadosJogo = {
+        titulo: req.body.titulo,
+        descricao: req.body.descricao,
+        precoBase: req.body.precoBase,
+    }
+
+    const jogo = await Jogo.create(dadosJogo);
+    res.send("Jogo inserido sobre o id " + jogo.id);
 });
 
 app.listen(8000, () => {

@@ -26,8 +26,9 @@ app.get("/", (req, res) => {
     res.render(`home`);
 });
 
-app.get("/usuarios", (req, res) => {
-    res.render(`usuarios`);
+app.get("/usuarios", async (req, res) => {
+    const usuarios = await Usuario.findAll({ raw: true })
+    res.render(`usuarios`, { usuarios });
 });
 
 app.get("/jogos/novo", (req, res) => {
@@ -53,6 +54,13 @@ app.post("/jogos/novo", async (req, res) => {
 
     const jogo = await Jogo.create(dadosJogo);
     res.send("Jogo inserido sobre o id " + jogo.id);
+});
+
+
+app.get("/usuarios/:id/atualizar", async (req, res) => {
+    const id = req.params.id;
+    const usuario = await Usuario.findByPk(id, { raw: true });
+    res.render("formUsuario", { usuario });
 });
 
 app.listen(8000, () => {

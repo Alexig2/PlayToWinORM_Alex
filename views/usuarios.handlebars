@@ -8,13 +8,19 @@
     <th>Nickname</th>
     <th>Nome</th>
     <th></th>
+  </tr>
   {{#each usuarios}}
-    <td>{{this.id}}</td>
-    <td>{{this.nickname}}</td>
-    <td>{{this.nome}}</td>
-    <td>
+    <tr>
+      <td>{{this.id}}</td>
+      <td>{{this.nickname}}</td>
+      <td>{{this.nome}}</td>
+      <td>
         <a href="/usuarios/{{this.id}}/atualizar">Atualizar</a>
-    </td>
+        <form action="/usuarios/excluir" method="post">
+          <input type="hidden" value="{{this.id}}" name="id" >
+          <input type="submit" value="Excluir">
+        </form>
+      </td>
     </tr>
   {{/each}}
 </table>

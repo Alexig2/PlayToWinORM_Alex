@@ -31,6 +31,11 @@ app.get("/usuarios", async (req, res) => {
     res.render(`usuarios`, { usuarios });
 });
 
+app.get("/jogos", async (req, res) => {
+    const jogos = await Jogo.findAll({ raw: true })
+    res.render(`jogos`, { jogos });
+});
+
 app.get("/jogos/novo", (req, res) => {
     res.render(`formJogo`);
 });
@@ -61,19 +66,40 @@ app.get("/usuarios/:id/atualizar", async (req, res) => {
     res.render("formUsuario", { usuario });
 });
 
+app.get("/jogos/:id/atualizar", async (req, res) => {
+    const id = req.params.id;
+    const jogo = await Jogos.findByPk(id, { raw: true });
+    res.render("formJogo", { jogo });
+});
+
 app.post("/usuarios/:id/atualizar", async (req, res) => {
     const id = req.params.id;
     const dadosUsuario = {
         nickname: req.body.nickname,
         nome: req.body.nome,
     };
-    
     const registrosAfetados = await Usuario.update(dadosUsuario, { where: { id: id } });
     
     if (registrosAfetados > 0) {
         res.redirect("/usuarios");
     } else {
         res.send("Erro ao atualizar usuário!");
+    };
+});
+
+app.post("/jogos/:id/atualizar", async (req, res) => {
+    const id = req.params.id;
+    const dadosJogo = {
+        titulo: req.body.titulo,
+        descricao: req.body.descricao,
+        precoBase: req.body.precoBase,
+    };
+    const registrosAfetados = await Jogo.update(dadosJogo, { where: { id: id } });
+    
+    if (registrosAfetados > 0) {
+        res.redirect("/jogos");
+    } else {
+        res.send("Erro ao atualizar jogo!");
     };
 });
 
@@ -85,6 +111,17 @@ app.post("/usuarios/excluir", async (req, res) => {
         res.redirect("/usuarios");
     } else {
         res.send("Erro ao excluir usuário!");
+    };
+});
+
+app.post("/jogos/excluir", async (req, res) => {
+    const id = req.body.id;
+    const registrosAfetados = await Jogo.destroy({ where: { id: id } });
+    
+    if (registrosAfetados > 0) {
+        res.redirect("/jogos");
+    } else {
+        res.send("Erro ao excluir jogo!");
     };
 });
 

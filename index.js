@@ -1,10 +1,11 @@
 require("dotenv").config();
 const conn = require("./db/conn");
-const Usuario = require("./models/Usuario");
-const Jogo = require("./models/Jogo");
 const express = require("express");
 const app = express();
 const handlebars = require("express-handlebars");
+const Usuario = require("./models/Usuario");
+const Jogo = require("./models/Jogo");
+const Conquista = require("./models/Conquista");
 
 app.engine("handlebars", handlebars.engine());
 
@@ -17,10 +18,6 @@ app.use(
 );
 
 app.use(express.json());
-
-app.get("/usuarios/novo", (req, res) => {
-    res.render(`formUsuario`);
-});
 
 app.get("/", (req, res) => {
     res.render(`home`);
@@ -36,9 +33,33 @@ app.get("/jogos", async (req, res) => {
     res.render(`jogos`, { jogos });
 });
 
+app.get('/jogos/:id/conquistas', async (req, res) => {
+    const id = parseInt(req.params.id);
+    const jogo = await Jogo.findByPk(id, { include: ['Conquistaes'] });
+
+    let conquistas = jogo.Conquistaes;
+    conquistas = conquistas.map((conquista) => conquista.toJSON());
+
+    res.render('conquistas', {
+        jogo: jogo.toJSON(),
+        conquistas
+    });
+});
+
+app.get("/usuarios/novo", (req, res) => {
+    res.render(`formUsuario`);
+});
+
 app.get("/jogos/novo", (req, res) => {
     res.render(`formJogo`);
 });
+
+app.get('jogos/:id/novaConquista', async (req, res) => {
+    const id = parseInt(req.params.id);
+    const jogo = await Jogo.findByPk(id, { raw: true });
+
+    res.render('formConquista', { jogo });
+})
 
 app.post("/usuarios/novo", async (req, res) => {
     const dadosUsuario = {
@@ -59,6 +80,19 @@ app.post("/jogos/novo", async (req, res) => {
     res.send("Jogo inserido sobre o id " + jogo.id);
 });
 
+app.post("/jogos/:id/novaConquista", async (req, res) => {
+    const id = parseInt(req.params.id);
+
+    const dadosConquista = {
+        titulo: req.body.titulo,
+        descricao: req.body.descricao,
+        JogoId: id,
+    };
+
+    await Conquista.create(dadosConquista);
+
+    res.redirect(`/jogos/${id}/conquistas`);
+});
 
 app.get("/usuarios/:id/atualizar", async (req, res) => {
     const id = req.params.id;
@@ -68,7 +102,7 @@ app.get("/usuarios/:id/atualizar", async (req, res) => {
 
 app.get("/jogos/:id/atualizar", async (req, res) => {
     const id = req.params.id;
-    const jogo = await Jogos.findByPk(id, { raw: true });
+    const jogo = await Jogo.findByPk(id, { raw: true });
     res.render("formJogo", { jogo });
 });
 
@@ -79,7 +113,7 @@ app.post("/usuarios/:id/atualizar", async (req, res) => {
         nome: req.body.nome,
     };
     const registrosAfetados = await Usuario.update(dadosUsuario, { where: { id: id } });
-    
+
     if (registrosAfetados > 0) {
         res.redirect("/usuarios");
     } else {
@@ -95,7 +129,7 @@ app.post("/jogos/:id/atualizar", async (req, res) => {
         precoBase: req.body.precoBase,
     };
     const registrosAfetados = await Jogo.update(dadosJogo, { where: { id: id } });
-    
+
     if (registrosAfetados > 0) {
         res.redirect("/jogos");
     } else {
@@ -106,7 +140,7 @@ app.post("/jogos/:id/atualizar", async (req, res) => {
 app.post("/usuarios/excluir", async (req, res) => {
     const id = req.body.id;
     const registrosAfetados = await Usuario.destroy({ where: { id: id } });
-    
+
     if (registrosAfetados > 0) {
         res.redirect("/usuarios");
     } else {
@@ -117,7 +151,7 @@ app.post("/usuarios/excluir", async (req, res) => {
 app.post("/jogos/excluir", async (req, res) => {
     const id = req.body.id;
     const registrosAfetados = await Jogo.destroy({ where: { id: id } });
-    
+
     if (registrosAfetados > 0) {
         res.redirect("/jogos");
     } else {

@@ -1,5 +1,10 @@
+{{#if jogo}}
+  <h1>Atualizar Jogo</h1>
+  <form action="/jogos/{{jogo.id}}/atualizar" method="post">
+{{else}}
 <h1>Cadastre um Jogo</h1>
     <form action="/jogos/novo" method="post">
+{{/if}}
         <div>
             <label for="titulo">Título</label>
             <input type="text" id="titulo" name="titulo">
@@ -12,5 +17,9 @@
             <label for="precoBase">Preço base</label>
             <input type="number" id="precoBase" name="precoBase" min="0" max="1000">
         </div>
-        <input type="submit" value="Cadastrar" />
+  {{#if jogo}}
+         <input type="submit" value="Salvar" />
+  {{else}}
+         <input type="submit" value="Cadastrar" />
+  {{/if}}
     </form>

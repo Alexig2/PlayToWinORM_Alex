@@ -10,17 +10,10 @@ const Conquista = db.define(
       allowNull: false,
     },
     descricao: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    jogoId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
   },
-  {
-    tableName: 'Conquistas'
-  }
 );
 
 Conquista.belongsTo(Jogo);

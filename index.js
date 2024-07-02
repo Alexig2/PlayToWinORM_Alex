@@ -33,18 +33,30 @@ app.get("/jogos", async (req, res) => {
     res.render(`jogos`, { jogos });
 });
 
-app.get('/jogos/:id/conquistas', async (req, res) => {
+/*  app.get('/jogos/:id/conquistas', async (req, res) => {
     const id = parseInt(req.params.id);
-    const jogo = await Jogo.findByPk(id, { include: ['Conquistaes'] });
+    const jogo = await Jogo.findByPk(id, { include: ['Conquistas'] });
 
-    let conquistas = jogo.Conquistaes;
+    let conquistas = jogo.Conquistas;
     conquistas = conquistas.map((conquista) => conquista.toJSON());
 
     res.render('conquistas', {
         jogo: jogo.toJSON(),
-        conquistas
+        conquistas,
     });
-});
+});*/
+
+app.get("/jogos/:id/conquistas", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const jogo = await Jogo.findByPk(id, { raw: true });
+  
+    const conquistas = await Conquista.findAll({
+      raw: true,
+      where: { JogoId: id },
+    });
+  
+    res.render("conquistas.handlebars", { jogo, conquistas });
+  });
 
 app.get("/usuarios/novo", (req, res) => {
     res.render(`formUsuario`);
@@ -54,7 +66,7 @@ app.get("/jogos/novo", (req, res) => {
     res.render(`formJogo`);
 });
 
-app.get('jogos/:id/novaConquista', async (req, res) => {
+app.get('/jogos/:id/novaConquista', async (req, res) => {
     const id = parseInt(req.params.id);
     const jogo = await Jogo.findByPk(id, { raw: true });
 
